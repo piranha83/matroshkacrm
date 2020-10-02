@@ -1,0 +1,70 @@
+﻿dotnet tool install -g dotnet-ef --version 3.1.0
+
+
+dotnet new classlib -o Domain
+
+
+dotnet new classlib -o Infrastructure
+cd Infrastructure
+dotnet add reference D:\Code\Odata\Domain\Domain.csproj
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+
+ create models:
+dotnet-ef dbcontext scaffold "Server=localhost;Database=Northwind;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -o Models  -f --use-database-names
+ update models:
+dotnet ef dbcontext scaffold "Server=localhost;Database=Northwind;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -force
+ ef config files:
+dotnet-ef dbcontext scaffold "Server=localhost;Database=Northwind;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -d
+
+
+dotnet new webapi --name Web
+cd Web
+dotnet add reference D:\Code\Odata\Infrastructure\Infrastructure.csproj
+dotnet add reference D:\Code\Odata\Domain\Domain.csproj
+
+dotnet add package Microsoft.AspNetCore.OData
+dotnet add package Microsoft.AspNetCore.OData.Versioning.ApiExplorer
+dotnet add package Microsoft.AspNetCore.Mvc.NewtonsoftJson
+
+
+dotnet new mvc --name Client
+
+dotnet new sln;
+dotnet sln add D:\Code\Odata\Infrastructure\Infrastructure.csproj
+dotnet sln add D:\Code\Odata\Web\Web.csproj
+dotnet sln add D:\Code\Odata\Client\Client.csproj
+dotnet sln add D:\Code\Odata\Domain\Domain.csproj
+
+
+docker-machine ip
+docker build -t web .
+docker run --rm -it -d -p 8000:80 --name web_container -e TZ=Europe/Moscow  web
+
+Команды ps(на свой eth):
+docker-machine create -d virtualbox testenv
+docker-machine env testenv
+
+Команды ps:
+docker ps -a -q | ForEach { docker stop $_ }
+docker ps -a -q | ForEach { docker rm $_ }
+docker images -q -a | ForEach { docker rmi $_ }
+
+Команды ps:
+docker-compose up -d
+docker-compose ps
+
+docker-machine ls
+
+//локал docker hub репо ----------------------------------------
+docker run -d -p 5000:5000 --name registry registry:2
+#залить из hub
+docker pull ubuntu
+#Tag the image
+docker image tag ubuntu localhost:5000/web.image
+#сохраниь локально
+docker push localhost:5000/web.image
+#stop your registry and remove
+docker container stop registry && docker container rm -v registry
+
+
