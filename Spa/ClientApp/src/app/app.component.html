@@ -1,0 +1,9 @@
+
+<select >
+  <option [value]="option['key']" *ngFor="let option of options || (dictionary.get('people') | async)">
+    {{ option['value'] }}
+  </option>
+</select>
+
+
+<router-outlet></router-outlet>
