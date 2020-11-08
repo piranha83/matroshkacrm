@@ -1,0 +1,14 @@
+<nav>
+    <ol class="breadcrumb">
+        <li *ngFor="let item of items; let i = index" class="breadcrumb-item">
+            <ng-container [ngSwitch]="i">
+                <ng-container *ngSwitchCase="items.length == 0 || items.length-1">
+                    {{item.label}}
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                    <a routerLinkActive="active-link" routerLink="{{item.href}}">{{item.label}}</a>
+                </ng-container>                
+            </ng-container>            
+        </li>
+    </ol>
+</nav>
