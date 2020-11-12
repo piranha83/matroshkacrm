@@ -8,39 +8,48 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
-  @Input() items: Object[];
+  @Input() items: Object[] = [];
 
   constructor(
     private router: Router) { }
 
   ngOnInit() {
-    console.log('sidebar');
-    var items = [];
-    this.fromRouter(this.router, '', items);
+    console.log('sidebar');    
+    this.fromRouter(this.router);
   }
 
 
-  fromRouter(router: Router, href: string = '', items: any[] = []) {
-    router.config = router.config || [];
-    router.config.forEach(route => {
-      const label = this.getLabel(route);
-      href += `/${route.path}`;
-      items.push({ label, href });
+  fromRouter(router: Router) {
+    var data = localStorage.getItem("sidebar");
+    var items : any[] = data ? JSON.parse(data) : [];
+    if(items.length == 0) {
+      router.config = router.config || [];
+      router.config.forEach(route => {
+        const label = this.getLabel(route);
+        var href = `/${route.path}`;
 
-      this.fromRoute(route, href, items);
-      this.items.push(items);
-    });
+        if (href !== '' && href != '**' && label != '**') {
+          items.push({ label, href });
+          this.fromRoute(route, href, items);
+        }
+      });
+      localStorage.setItem('sidebar', JSON.stringify(items));
+    }
+    this.items = items;
   }
 
-  fromRoute(route: Route, href: string = '', items: any[] = []) {
+  fromRoute(route: Route, root: string = '', items: any[]) {
     route.children = route.children || [];
     route.children.forEach(child => {
+      var href = root;
       const label = this.getLabel(child);
-      const uri: string = child['path'];//.snapshot.url.map(segment => segment.path).join('/');
-      if (uri !== '') href += `/${uri}`;
+      const uri: string = child['path'];
+      href += `/${uri}`;
 
-      items.push({ label, href });
-      this.fromRoute(child, href, items);
+      if (uri !== '' && uri != '**' && label != '**') {
+        items.push({ label, href });
+        this.fromRoute(child, href, items);
+      }
     });
   }
 
