@@ -1,8 +1,10 @@
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Infrastructure.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using  Infrastructure.Interfaces;
 
 namespace Web.Extensions
 {
@@ -15,6 +17,38 @@ namespace Web.Extensions
                 new Newtonsoft.Json.JsonSerializerSettings() { Formatting = Newtonsoft.Json.Formatting.Indented },
                 System.Buffers.ArrayPool<char>.Create()));*/
             return res;
+        }
+
+        public static T GetClaim<T>(this ControllerBase c, string claim)
+            where T : struct
+        {
+            var value = c.User?.FindFirst(claim)?.Value;
+            return string.IsNullOrWhiteSpace(value) == false
+                ? (T)Convert.ChangeType(value, typeof(T))
+                : default(T);
+        }
+
+        public static int GetUserId(this ControllerBase c)
+            => GetClaim<int>(c, ClaimTypes.NameIdentifier);
+
+        public static string GetUserName(this ControllerBase c)
+            => c.User?.Identity?.Name;
+
+        public static void SerCredential<TModel>(this ControllerBase c, TModel entity)
+            where TModel: class
+        {
+            if (entity is ICreator creator)
+            {
+                creator.CreatedBy = c.GetUserName();
+                creator.CreatorId = c.GetUserId();
+                creator.CreatedDate = DateTime.UtcNow;
+            }
+            if (entity is IEditor editor)
+            {
+                editor.EditorName = c.GetUserName();
+                editor.EditorId = c.GetUserId();
+                editor.UpdateDate = DateTime.UtcNow;
+            }
         }
     }
 

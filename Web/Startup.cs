@@ -32,6 +32,14 @@ using Infrastructure.Interfaces;
 using Web.Configurations;
 using Microsoft.OData.UriParser;
 using Microsoft.AspNet.OData;
+using Microsoft.OpenApi.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using Microsoft.OpenApi.Interfaces;
+using Microsoft.OpenApi.Any;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web
 {
@@ -102,6 +110,18 @@ namespace Web
             // format the version as "'v'major[.minor][-status]"
             services.AddApiVersioning(options => options.ReportApiVersions = true);
             services.AddOData().EnableApiVersioning();
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Api", Version = "v1" });
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
+                });
+                //options.OperationFilter<SecurityRequirementsOperationFilter>();
+            });
 
             services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
             services.AddSingleton<ILoggerFactory>(LoggerFactory.Create(builder => builder
@@ -109,7 +129,7 @@ namespace Web
                 .AddConsole()));
 
             services.AddDbContext<NorthwindContext>(options => options
-                .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
+                //.UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
                 .UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
                     options => options.EnableRetryOnFailure()));
             services.AddTransient<ISession, EfSession>();
@@ -204,6 +224,19 @@ namespace Web
                 .AllowAnyMethod()*/);
 
             app.UseRouting();
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+                options.RoutePrefix = string.Empty;
+                options.OAuthClientId("demo_api_swagger");
+                options.OAuthAppName("Demo API - Swagger"); // presentation purposes only           
+            });
 
             app.UseMvc(config =>
             {
