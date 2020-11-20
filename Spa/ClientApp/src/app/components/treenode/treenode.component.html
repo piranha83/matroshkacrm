@@ -1,0 +1,14 @@
+<ul>
+    <li *ngFor="let node of Item.children || []">
+        <label (click)="expand(node)">{{node.name}}</label>
+        <i (click)="remove(node)">-</i>        
+        <treenode *ngIf="node.expanded" 
+            [Item]="node"
+            (onTreeNodeLoadChildren)="children($event)"
+            (onTreeNodeSelect)="select($event)"
+            (onTreeNodeSave)="save($event)"
+            (onTreeNodeRemove)="remove($event)">
+        </treenode>        
+    </li>
+    <li (click)="save(Item)">+</li>
+</ul>

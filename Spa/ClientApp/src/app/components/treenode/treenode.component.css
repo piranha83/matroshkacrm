@@ -1,0 +1,8 @@
+		.treenodes {display:table; list-style-type: none; padding-left: 16px;}
+		:host .treenodes { padding-left: 0; }
+		.treenode { display: table-row; list-style-type: none; }
+		.nodebutton { display:table-cell; cursor: pointer; }
+		.nodeinfo { display:table-cell; padding-left: 5px; list-style-type: none; }
+		.nodetext { color: #31708f; padding-left: 3px; padding-right: 3px; cursor: pointer; }
+		.nodetext.bg-info { font-weight: bold; }
+		.nodetext.text-root { font-size: 16px; font-weight: bold; }
