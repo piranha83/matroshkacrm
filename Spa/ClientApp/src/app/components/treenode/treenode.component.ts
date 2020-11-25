@@ -53,4 +53,23 @@ export class TreeNodeComponent implements OnInit, OnDestroy {
       this.onTreeNodeRemove.emit(treeNode);
     }
   }
+
+
+  allowDrop(ev) {
+    ev.preventDefault();
+  }
+
+  drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+  }
+
+  drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    if(ev.target.tagName != "LI") {
+      return;
+    }
+    ev.target.parentNode.insertBefore(document.getElementById(data), ev.target.nextSibling);
+    //ev.target.insertAfter(document.getElementById(data));
+  }
 }

@@ -1,7 +1,7 @@
-<ul>
-    <li *ngFor="let node of Item.children || []">
+<ul (drop)="drop($event)" (dragover)="allowDrop($event)" >
+    <li *ngFor="let node of Item.children || []" id="{{node.name}}" draggable="true" (dragstart)="drag($event)">
         <label (click)="expand(node)">{{node.name}}</label>
-        <i (click)="remove(node)">-</i>        
+        <i  (click)="remove(node)">-</i>        
         <treenode *ngIf="node.expanded" 
             [Item]="node"
             (onTreeNodeLoadChildren)="children($event)"
@@ -10,5 +10,5 @@
             (onTreeNodeRemove)="remove($event)">
         </treenode>        
     </li>
-    <li (click)="save(Item)">+</li>
+    <li (drop)="$event.preventDefault();" (click)="save(Item)">+</li>
 </ul>
